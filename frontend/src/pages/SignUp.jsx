@@ -2,7 +2,7 @@ import React from "react"
 import "../CSS/SignUp.css"
 import { Link } from "react-router-dom";
 
-export default function SignUp() {
+export default function SignUp({goTo}) {
   return (
     <div className="signup-page">
       <div className="signup-card">
@@ -23,7 +23,7 @@ export default function SignUp() {
           <label>Confirm Password</label>
           <input type="password" className="signup-input" />
 
-          <button className="signup-btn">Sign Up</button>
+          <button className="signup-btn" onClick={() => goTo("dashboard")}>Sign Up</button>
         </form>
 
       </div>

@@ -2,7 +2,7 @@ import React from "react"
 import "../CSS/HomePage.css"
 import { Link } from "react-router-dom"
 
-export default function HomePage() {
+export default function HomePage({goTo}) {
   return (
     <div className="page-container">
         <img src="/Flower branch.png" className="branches right" alt="" />
@@ -13,6 +13,7 @@ export default function HomePage() {
             <img src="/Flowers.png" className="flower f3" alt="" />
             <img src="/Flowers.png" className="flower f4" alt="" />
             <img src="/Flowers.png" className="flower f5" alt="" />
+            <img src="/Flowers.png" className="flower f6" alt="" />
         </div>
       <div className="card">
         <h1 className="welcome-text">Welcome!</h1>
@@ -20,8 +21,12 @@ export default function HomePage() {
         <img src="/Logo.png" className="logo" alt="Pot Your Progress" />
 
         <div className="button-row">
-          <button className="btn">Log In</button>
-          <button className="btn">Sign Up</button>
+          <button className="btn" onClick={() => goTo("login")}>
+            Log In
+          </button>
+          <button className="btn" onClick={() => goTo("signup")}>
+            Sign Up
+          </button>
         </div>
       </div>
     </div>

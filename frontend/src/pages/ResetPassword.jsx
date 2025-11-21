@@ -2,7 +2,7 @@ import React from "react"
 import "../CSS/ResetPassword.css"
 import { Link } from "react-router-dom";
 
-export default function ResetPassword() {
+export default function ResetPassword({goTo}) {
   return (
     <div className="reset-page">
       <div className="reset-card">
@@ -17,7 +17,7 @@ export default function ResetPassword() {
           <label>Confirm Password</label>
           <input type="password" className="reset-input" />
 
-          <button className="reset-btn">Reset Password</button>
+          <button className="reset-btn" onClick={() => goTo("login")}>Reset Password</button>
         </form>
 
       </div>

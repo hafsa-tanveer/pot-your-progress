@@ -2,7 +2,7 @@ import React from "react"
 import "../CSS/LogIn.css"
 import { Link } from "react-router-dom"
 
-export default function LogIn() {
+export default function LogIn({goTo}) {
   return (
     <div className="signin-page">
       <div className="signin-card">
@@ -17,9 +17,9 @@ export default function LogIn() {
           <label>password</label>
           <input type="password" className="signin-input" />
 
-          <p className="forgot-text">Forgot Password?</p>
+          <p className="forgot-text" onClick={() => goTo("reset")}>Forgot Password?</p>
 
-          <button className="signin-btn">Log In</button>
+          <button className="signin-btn" onClick={() => goTo("dashboard")}>Log In</button>
         </form>
 
       </div>
