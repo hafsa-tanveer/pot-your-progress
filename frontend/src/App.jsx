@@ -6,6 +6,16 @@ import ResetPassword from "./pages/ResetPassword"
 import Dashboard from "./pages/Dashboard"
 
 export default function App() {
+  const [page, setPage] = useState("dashboard"); // start at Dashboard
+
+  return (
+    <div>
+      {page === "dashboard" && <Dashboard goTo={setPage} />}
+      {page === "home" && <HomePage goTo={setPage} />}
+    </div>
+  );
+  
+  /*
   const [page, setPage] = useState("home"); 
 
   return (
@@ -16,7 +26,7 @@ export default function App() {
       {page === "reset" && <ResetPassword goTo={setPage} />}
       {page === "dashboard" && <Dashboard goTo={setPage} />}
     </div>
-  );
+  ); */
 }
 
 

@@ -3,11 +3,12 @@ import os
 
 # === CREDENTIALS (REVERTED) ===
 # We are using the simple user that we confirmed works.
-DB_USER = "FLORA_APP"
-DB_PASSWORD = "welcome123"
+DB_USER = "pot_your_progress"
+DB_PASSWORD = "123"
 
 # The DSN that worked for you
 DB_DSN = "//localhost:1521/orclpdb"
+
 
 def get_db_connection():
     try:
