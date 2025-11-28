@@ -1,5 +1,15 @@
 {
+  "name": "pot-your-progress",
+  "version": "1.0.0",
   "dependencies": {
     "react-router-dom": "^7.9.6"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "scripts": {
+    "dev": "concurrently \"npm:backend\" \"npm:frontend\"",
+    "backend": "python backend/app.py",
+    "frontend": "npm --prefix frontend run dev"
   }
 }

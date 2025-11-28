@@ -1,110 +1,92 @@
 from flask import Blueprint, request, jsonify, session
-import oracledb
-import bcrypt
-import sys
+from supabase import create_client
 import os
+import bcrypt
 
-# Path fix to find db.py in parent folder
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from db import get_db_connection
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise RuntimeError("Missing Supabase environment variables")
+
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 auth_bp = Blueprint("auth", __name__)
 
-# --------------------------------------------------------
-#                 SIGNUP ROUTE (ENCRYPTED)
-# --------------------------------------------------------
+# ------------------ SIGNUP ------------------
 @auth_bp.post("/signup")
 def signup():
-    data = request.json
-    full_name = data.get("name") 
+    data = request.json or {}
+    name = data.get("name")
     email = data.get("email")
     password = data.get("password")
-    
-    if not all([full_name, email, password]):
+
+    if not all([name, email, password]):
         return jsonify({"message": "Missing required fields"}), 400
 
-    # 1. Encrypt Password (Bcrypt)
-    hashed_bytes = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-    hashed_password_str = hashed_bytes.decode('utf-8')
-
-    conn = get_db_connection()
-    if not conn:
-        return jsonify({"message": "Database connection failed"}), 500
-    
-    cursor = conn.cursor()
-
     try:
-        # 2. Save to DB (FLORA_APP schema)
-        cursor.callproc("register_user", [full_name, email, hashed_password_str])
-        conn.commit()
+        hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+        # Attempt to insert
+        supabase.table("users").insert({
+            "full_name": name,
+            "email": email,
+            "password_hash": hashed_password
+        }).execute()
+
         return jsonify({"message": "User registered successfully"}), 201
 
-    except oracledb.DatabaseError as e:
-        error_obj, = e.args
-        # ORA-20001 is defined in your SQL code for duplicates
-        if error_obj.code == 20001: 
+    except Exception as e:
+        # Check if it's a unique constraint violation
+        err_str = str(e)
+        if "duplicate key value violates unique constraint" in err_str or "already exists" in err_str:
             return jsonify({"message": "Email already exists"}), 409
-        else:
-            return jsonify({"message": str(e)}), 500
-    finally:
-        cursor.close()
-        conn.close()
+        return jsonify({"message": str(e)}), 500
 
 
-# --------------------------------------------------------
-#                  LOGIN ROUTE (ENCRYPTED CHECK)
-# --------------------------------------------------------
+# ------------------ LOGIN ------------------
 @auth_bp.post("/login")
 def login():
-    data = request.json
-    email = data.get("email") 
+    data = request.json or {}
+    email = data.get("email")
     password = data.get("password")
 
     if not email or not password:
         return jsonify({"message": "Missing credentials"}), 400
 
-    conn = get_db_connection()
-    if not conn:
-        return jsonify({"message": "Database connection failed"}), 500
-
-    cursor = conn.cursor()
-
     try:
-        # 1. Fetch Encrypted Hash
-        ref_cursor = cursor.callfunc("get_user_by_email", oracledb.CURSOR, [email])
-        user_row = ref_cursor.fetchone()
+        # Fetch user by email
+        res = supabase.table("users").select("*").eq("email", email).execute()
+        users = res.data or []
 
-        if user_row:
-            user_id = user_row[0]
-            db_name = user_row[1]
-            db_hash = user_row[2] # This is the bcrypt hash
-
-            # 2. Verify Password
-            if bcrypt.checkpw(password.encode('utf-8'), db_hash.encode('utf-8')):
-                
-                # 3. Create Session
-                session['user_id'] = user_id
-                session['user_name'] = db_name
-                
-                return jsonify({
-                    "message": "Login successful",
-                    "token": f"mock-jwt-token-{user_id}", 
-                    "user": {"id": user_id, "name": db_name, "email": email}
-                }), 200
-            else:
-                return jsonify({"message": "Invalid credentials"}), 401
-        else:
+        if not users:
             return jsonify({"message": "User not found"}), 401
 
-    except oracledb.DatabaseError as e:
-        return jsonify({"message": str(e)}), 500
-    finally:
-        cursor.close()
-        conn.close()
+        user = users[0]
+        stored_hash = user.get("password_hash")
+        if not stored_hash:
+            return jsonify({"message": "No password found for user"}), 500
 
-# --------------------------------------------------------
-#                   LOGOUT ROUTE
-# --------------------------------------------------------
+        # Verify password
+        if bcrypt.checkpw(password.encode("utf-8"), stored_hash.encode("utf-8")):
+            session["user_id"] = user.get("user_id")
+            session["user_name"] = user.get("full_name")
+            return jsonify({
+                "message": "Login successful",
+                "user": {
+                    "id": user.get("user_id"),
+                    "name": user.get("full_name"),
+                    "email": user.get("email")
+                }
+            }), 200
+        else:
+            return jsonify({"message": "Invalid credentials"}), 401
+
+    except Exception as e:
+        # Catch any Supabase errors
+        return jsonify({"message": str(e)}), 500
+
+
+# ------------------ LOGOUT ------------------
 @auth_bp.post("/logout")
 def logout():
     session.clear()
