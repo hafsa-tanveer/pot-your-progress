@@ -11,6 +11,20 @@ export default function Dashboard({ goTo }) {
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [editingHabitIndex, setEditingHabitIndex] = useState(null);
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+  const [deleteMode, setDeleteMode] = useState(false);
+
+  React.useEffect(() => {
+    return () => {
+      document.body.style.cursor = "default";
+    };
+  }, []);
+
+  //cursor logic
+  if (deleteMode) {
+    document.body.style.cursor = "url('/Shovel.png') 16 16, pointer";
+  } else {
+    document.body.style.cursor = "default";
+  }
 
   // Add new habit
   const handleAddHabit = (newHabit) => {
@@ -65,9 +79,19 @@ export default function Dashboard({ goTo }) {
               key={i}
               className={`habit-card ${!h ? "disabled" : ""}`}
               onClick={() => {
-              console.log("Clicked habit:", i, habits[i]);
-              h && setEditingHabitIndex(i);
-          }}
+                if (!h) return;
+
+                if (deleteMode) {
+                // delete this ONE habit
+                  const updated = [...habits];
+                  updated[i] = null;
+                  setHabits(updated);
+                  setDeleteMode(false); // exit delete mode after deleting
+                } else {
+                // normal: open edit popup
+                  setEditingHabitIndex(i);
+                }
+              }}
 
               disabled={!h}
             >
@@ -83,12 +107,12 @@ export default function Dashboard({ goTo }) {
 
         <div className="sidebar">
           <div className="sidebar-card">
-            <button
-              className="icon-button"
-              onClick={() => setShowDeletePopup(true)}
-            >
-              <img src="/Shovel.png" alt="shovel" className="sidebar-icon" />
-            </button>
+        <button
+          className={`icon-button ${deleteMode ? "delete-active" : ""}`}
+          onClick={() => setDeleteMode(!deleteMode)}
+        >
+          <img src="/Shovel.png" alt="shovel" className="sidebar-icon" />
+        </button>
 
             {showDeletePopup && (
               <DeleteHabitPopup
