@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import HomePage from "./pages/HomePage"
-import LogIn from "./pages/LogIn"
-import SignUp from "./pages/SignUp"
-import ResetPassword from "./pages/ResetPassword"
-import Dashboard from "./pages/Dashboard"
+import HomePage from "./pages/HomePage";
+import LogIn from "./pages/LogIn";
+import SignUp from "./pages/SignUp";
+import ResetPassword from "./pages/ResetPassword";
+import Dashboard from "./pages/Dashboard";
 
 export default function App() {
   const [page, setPage] = useState("dashboard"); // start at Dashboard
@@ -14,7 +14,7 @@ export default function App() {
       {page === "home" && <HomePage goTo={setPage} />}
     </div>
   );
-  
+
   /*
   const [page, setPage] = useState("home"); 
 
@@ -28,5 +28,3 @@ export default function App() {
     </div>
   ); */
 }
-
-

@@ -60,14 +60,14 @@ export default function Dashboard({ goTo }) {
         </div>
         <div className="nav-right">
           <button className="icon-button">
-            <img src="/notif.png" alt="reminder" className="nav-icon"/>
+            <img src="/notif.png" alt="reminder" className="nav-icon" />
           </button>
 
-          <button 
+          <button
             className="icon-button"
             onClick={() => setShowLogoutPopup(true)}
           >
-            <img src="/logout.png" alt="logout" className="nav-icon"/>
+            <img src="/logout.png" alt="logout" className="nav-icon" />
           </button>
         </div>
       </nav>
@@ -82,17 +82,16 @@ export default function Dashboard({ goTo }) {
                 if (!h) return;
 
                 if (deleteMode) {
-                // delete this ONE habit
+                  // delete this ONE habit
                   const updated = [...habits];
                   updated[i] = null;
                   setHabits(updated);
                   setDeleteMode(false); // exit delete mode after deleting
                 } else {
-                // normal: open edit popup
+                  // normal: open edit popup
                   setEditingHabitIndex(i);
                 }
               }}
-
               disabled={!h}
             >
               <img
@@ -107,12 +106,12 @@ export default function Dashboard({ goTo }) {
 
         <div className="sidebar">
           <div className="sidebar-card">
-        <button
-          className={`icon-button ${deleteMode ? "delete-active" : ""}`}
-          onClick={() => setDeleteMode(!deleteMode)}
-        >
-          <img src="/Shovel.png" alt="shovel" className="sidebar-icon" />
-        </button>
+            <button
+              className={`icon-button ${deleteMode ? "delete-active" : ""}`}
+              onClick={() => setDeleteMode(!deleteMode)}
+            >
+              <img src="/Shovel.png" alt="shovel" className="sidebar-icon" />
+            </button>
 
             {showDeletePopup && (
               <DeleteHabitPopup
@@ -146,7 +145,7 @@ export default function Dashboard({ goTo }) {
         <EditHabitPopup
           habit={habits[editingHabitIndex]}
           onClose={() => setEditingHabitIndex(null)}
-          onEditHabit={handleEditHabit}  
+          onEditHabit={handleEditHabit}
         />
       )}
 
@@ -156,11 +155,9 @@ export default function Dashboard({ goTo }) {
           onLogout={() => {
             setShowLogoutPopup(false);
             goTo("home"); // switches back to HomePage
-          }}      
-          />
-       )}
-
-
+          }}
+        />
+      )}
     </div>
   );
 }
