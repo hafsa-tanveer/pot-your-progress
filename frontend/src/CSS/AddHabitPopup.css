@@ -12,9 +12,43 @@
 }
 
 .popup-content {
-  background: white;
+  background: #422B23;
+  opacity: 0.9;
   padding: 20px;
+  padding-bottom: 50px;
   border-radius: 10px;
   width: 300px;
   text-align: center;
 }
+
+.input-habit {
+  background-color: #F7F3ED;
+  color: #422B23;
+  border: none;
+  margin-bottom: 20px;
+  padding: 10px;
+  width: 200px;
+}
+
+.daily-button {
+  margin-bottom: 20px;
+  background: none;
+  border: #F7F3ED;
+  font-weight: bold;
+}
+
+.add-habit-button, .cancel-button{
+  background-color: #F7F3ED;
+  color: #422B23;
+  font-weight: bold;
+  transition: 0.3s ease;
+}
+
+.add-habit-button:hover, 
+.cancel-button:hover {
+  background-color: #294936;
+  color: #F7F3ED;     
+  transform: scale(1.05);   
+  border: none;   
+}
+

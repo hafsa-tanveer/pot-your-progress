@@ -108,17 +108,40 @@
   align-items: center;
 }
 
+.habit-card-wrapper {
+  position: relative;
+  height: 130px;
+  width: 130px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* flex-direction: column; remove this */
+}
+
+.pot-img {
+  width: 100px;
+  height: auto;
+  z-index: 1;
+  position: absolute;
+  bottom: 0; /* always at bottom */
+}
+
 .plant-img {
   width: 80px;
   height: auto;
-  margin-top: 50px;
+  z-index: 2;
+  position: absolute;
+  bottom: 40px; /* slightly above pot */
 }
 
 .habit-title {
-  margin-top: 8px;
+  position: absolute;
+  bottom: -25px; /* just below pot */
   font-size: 14px;
-  text-align: center;
   color: #422B23;
+  text-align: center;
+  width: 100%;
+  z-index: 3;
 }
 
 /* SIDEBAR */
@@ -194,4 +217,9 @@
   .nav-logo {
     height: 55px;
   }
+}
+
+.sidebar button {
+  outline: none;
+  box-shadow: none;
 }

@@ -7,27 +7,27 @@ export default function DeleteHabitPopup({ onClose, onDelete }) {
       <div className="popup-content">
         <h2>Delete this habit?</h2>
         <div style={{ marginTop: "15px" }}>
-          <button
+          <button className="add-habit-button"
             onClick={onDelete}
             style={{
-              backgroundColor: "#e74c3c",
-              color: "white",
               padding: "8px 20px",
               border: "none",
               borderRadius: "5px",
               cursor: "pointer",
               marginRight: "10px",
+              fontWeight: "bold",
             }}
           >
             Delete
           </button>
-          <button
+          <button className="cancel-button"
             onClick={onClose}
             style={{
               padding: "8px 20px",
               border: "none",
               borderRadius: "5px",
               cursor: "pointer",
+              fontWeight: "bold",
             }}
           >
             Cancel

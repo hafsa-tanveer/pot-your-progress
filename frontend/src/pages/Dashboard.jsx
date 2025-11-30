@@ -4,6 +4,7 @@ import AddHabitPopup from "./AddHabitPopup";
 import EditHabitPopup from "./EditHabitPopup";
 import DeleteHabitPopup from "./DeleteHabitPopup";
 import LogoutPopup from "./LogoutPopup";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard({ goTo }) {
   const [habits, setHabits] = useState(Array(8).fill(null));
@@ -12,6 +13,8 @@ export default function Dashboard({ goTo }) {
   const [editingHabitIndex, setEditingHabitIndex] = useState(null);
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
   const [deleteMode, setDeleteMode] = useState(false);
+  const [habitToDeleteIndex, setHabitToDeleteIndex] = useState(null);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     return () => {
@@ -43,11 +46,18 @@ export default function Dashboard({ goTo }) {
     setEditingHabitIndex(null);
   };
 
-  // Delete all habits
-  const handleDeleteAll = () => {
-    setHabits(Array(8).fill(null));
+  // Delete habit
+  const handleDeleteOne = () => {
+    const updated = [...habits];
+    updated[habitToDeleteIndex] = null; 
+    setHabits(updated);
+
+    // reset states
+    setHabitToDeleteIndex(null);
     setShowDeletePopup(false);
-  };
+    setDeleteMode(false);
+};
+
 
   return (
     <div className="dashboard-container">
@@ -82,24 +92,21 @@ export default function Dashboard({ goTo }) {
                 if (!h) return;
 
                 if (deleteMode) {
-                  // delete this ONE habit
-                  const updated = [...habits];
-                  updated[i] = null;
-                  setHabits(updated);
-                  setDeleteMode(false); // exit delete mode after deleting
+                  setHabitToDeleteIndex(i); // store which plant is selected
+                  setShowDeletePopup(true); // open popup
+                  return;
                 } else {
-                  // normal: open edit popup
-                  setEditingHabitIndex(i);
-                }
+                  setEditingHabitIndex(i); // open edit popup
+              }
               }}
               disabled={!h}
             >
-              <img
-                src={h ? "/AlivePlant.png" : "/Pot.png"}
-                alt="plant"
-                className="plant-img"
-              />
+            <div className="habit-card-wrapper">
+              <img src="/Pot.png" alt="pot" className="pot-img" />
+              {h && <img src="/AlivePlant.png" alt="plant" className="plant-img" />}
               {h && <p className="habit-title">{h.name}</p>}
+            </div>
+
             </button>
           ))}
         </div>
@@ -112,12 +119,16 @@ export default function Dashboard({ goTo }) {
             >
               <img src="/Shovel.png" alt="shovel" className="sidebar-icon" />
             </button>
-
+              
             {showDeletePopup && (
-              <DeleteHabitPopup
-                onClose={() => setShowDeletePopup(false)}
-                onDelete={handleDeleteAll}
-              />
+                <DeleteHabitPopup
+                  onClose={() => {
+                    setShowDeletePopup(false);
+                    setHabitToDeleteIndex(null);
+                    setDeleteMode(false);
+                  }}
+                  onDelete={handleDeleteOne}
+                />
             )}
 
             <button
@@ -154,7 +165,7 @@ export default function Dashboard({ goTo }) {
           onClose={() => setShowLogoutPopup(false)}
           onLogout={() => {
             setShowLogoutPopup(false);
-            goTo("home"); // switches back to HomePage
+            navigate("/"); // switches back to HomePage
           }}
         />
       )}
