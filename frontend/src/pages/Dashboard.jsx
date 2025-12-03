@@ -4,6 +4,7 @@ import AddHabitPopup from "./AddHabitPopup";
 import EditHabitPopup from "./EditHabitPopup";
 import DeleteHabitPopup from "./DeleteHabitPopup";
 import LogoutPopup from "./LogoutPopup";
+import ReminderPopup from "./ReminderPopup";
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard({ goTo }) {
@@ -14,6 +15,10 @@ export default function Dashboard({ goTo }) {
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
   const [deleteMode, setDeleteMode] = useState(false);
   const [habitToDeleteIndex, setHabitToDeleteIndex] = useState(null);
+  const [showReminderPopup, setShowReminderPopup] = useState(false)
+  // store reminders by habit index
+  const [reminders, setReminders] = useState({}); 
+
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -69,7 +74,7 @@ export default function Dashboard({ goTo }) {
           <h1 className="app-title">Pot Your Progress</h1>
         </div>
         <div className="nav-right">
-          <button className="icon-button">
+          <button className="icon-button" onClick={() => setShowReminderPopup(true)}>
             <img src="/notif.png" alt="reminder" className="nav-icon" />
           </button>
 
@@ -169,6 +174,16 @@ export default function Dashboard({ goTo }) {
           }}
         />
       )}
+
+{showReminderPopup && (
+  <ReminderPopup
+    habits={habits.filter((h) => h !== null)} 
+    onClose={() => setShowReminderPopup(false)}
+    onAddReminder={(habit) => console.log("Add reminder for:", habit)}
+    onDeleteReminder={(habit) => console.log("Delete reminder for:", habit)}
+  />
+)}
+
     </div>
   );
 }
