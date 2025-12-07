@@ -1,12 +1,11 @@
 from flask import Blueprint, request, jsonify, session
-import oracledb
 import bcrypt
 import sys
 import os
 
 # Path fix to find db.py in parent folder
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from db import get_db_connection
+from db import get_supabase_client
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -27,28 +26,26 @@ def signup():
     hashed_bytes = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
     hashed_password_str = hashed_bytes.decode('utf-8')
 
-    conn = get_db_connection()
-    if not conn:
+    supabase = get_supabase_client()
+    if not supabase:
         return jsonify({"message": "Database connection failed"}), 500
-    
-    cursor = conn.cursor()
 
     try:
-        # 2. Save to DB (FLORA_APP schema)
-        cursor.callproc("register_user", [full_name, email, hashed_password_str])
-        conn.commit()
+        # 2. Save to Supabase
+        response = supabase.table('users').insert({
+            'full_name': full_name,
+            'email': email,
+            'password_hash': hashed_password_str
+        }).execute()
         return jsonify({"message": "User registered successfully"}), 201
 
-    except oracledb.DatabaseError as e:
-        error_obj, = e.args
-        # ORA-20001 is defined in your SQL code for duplicates
-        if error_obj.code == 20001: 
+    except Exception as e:
+        error_str = str(e)
+        # Check if it's a duplicate email error
+        if 'duplicate' in error_str.lower() or 'unique' in error_str.lower() or 'already exists' in error_str.lower():
             return jsonify({"message": "Email already exists"}), 409
         else:
             return jsonify({"message": str(e)}), 500
-    finally:
-        cursor.close()
-        conn.close()
 
 
 # --------------------------------------------------------
@@ -63,21 +60,19 @@ def login():
     if not email or not password:
         return jsonify({"message": "Missing credentials"}), 400
 
-    conn = get_db_connection()
-    if not conn:
+    supabase = get_supabase_client()
+    if not supabase:
         return jsonify({"message": "Database connection failed"}), 500
 
-    cursor = conn.cursor()
-
     try:
-        # 1. Fetch Encrypted Hash
-        ref_cursor = cursor.callfunc("get_user_by_email", oracledb.CURSOR, [email])
-        user_row = ref_cursor.fetchone()
-
-        if user_row:
-            user_id = user_row[0]
-            db_name = user_row[1]
-            db_hash = user_row[2] # This is the bcrypt hash
+        # 1. Fetch User by Email
+        response = supabase.table('users').select('user_id, full_name, email, password_hash').eq('email', email).execute()
+        
+        if response.data and len(response.data) > 0:
+            user_data = response.data[0]
+            user_id = user_data['user_id']
+            db_name = user_data['full_name']
+            db_hash = user_data['password_hash']  # This is the bcrypt hash
 
             # 2. Verify Password
             if bcrypt.checkpw(password.encode('utf-8'), db_hash.encode('utf-8')):
@@ -96,11 +91,8 @@ def login():
         else:
             return jsonify({"message": "User not found"}), 401
 
-    except oracledb.DatabaseError as e:
+    except Exception as e:
         return jsonify({"message": str(e)}), 500
-    finally:
-        cursor.close()
-        conn.close()
 
 # --------------------------------------------------------
 #                   LOGOUT ROUTE

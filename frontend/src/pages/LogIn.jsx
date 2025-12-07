@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "../CSS/LogIn.css";
 import API from "../api";
+import { Link } from "react-router-dom";
 
 export default function LogIn({ goTo }) {
   const [email, setEmail] = useState("");
@@ -44,13 +45,11 @@ export default function LogIn({ goTo }) {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <p className="forgot-text" onClick={() => goTo("reset")}>
-            Forgot Password?
-          </p>
+          <Link to="/resetpassword">Forgot Password?</Link>
 
-          <button type="submit" className="signin-btn">
+          <Link to="/dashboard" className="signin-btn">
             Log In
-          </button>
+          </Link>
         </form>
       </div>
     </div>

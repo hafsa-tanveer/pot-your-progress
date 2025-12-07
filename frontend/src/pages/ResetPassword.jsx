@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "../CSS/ResetPassword.css";
 import API from "../api";
+import { Link } from "react-router-dom";
 
 export default function ResetPassword({ goTo }) {
   const [newPassword, setNewPassword] = useState("");
@@ -55,9 +56,9 @@ export default function ResetPassword({ goTo }) {
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
 
-          <button type="submit" className="reset-btn">
+          <Link to="/login" className="reset-btn">
             Reset Password
-          </button>
+          </Link>
         </form>
       </div>
     </div>

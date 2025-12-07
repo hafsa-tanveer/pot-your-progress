@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "../CSS/SignUp.css";
 import API from "../api";
+import { Link } from "react-router-dom";
 
 export default function SignUp({ goTo }) {
   const [name, setName] = useState("");
@@ -68,9 +69,9 @@ export default function SignUp({ goTo }) {
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
 
-          <button type="submit" className="signup-btn">
+          <Link to="/dashboard" className="signup-btn">
             Sign Up
-          </button>
+          </Link>
         </form>
       </div>
     </div>
