@@ -15,9 +15,9 @@ export default function Dashboard({ goTo }) {
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
   const [deleteMode, setDeleteMode] = useState(false);
   const [habitToDeleteIndex, setHabitToDeleteIndex] = useState(null);
-  const [showReminderPopup, setShowReminderPopup] = useState(false)
+  const [showReminderPopup, setShowReminderPopup] = useState(false);
   // store reminders by habit index
-  const [reminders, setReminders] = useState({}); 
+  const [reminders, setReminders] = useState({});
 
   const navigate = useNavigate();
 
@@ -29,7 +29,7 @@ export default function Dashboard({ goTo }) {
 
   //cursor logic
   if (deleteMode) {
-    document.body.style.cursor = "url('/Shovel.png') 16 16, pointer";
+    document.body.style.cursor = "url('/Shovel.cur'), auto";
   } else {
     document.body.style.cursor = "default";
   }
@@ -54,15 +54,14 @@ export default function Dashboard({ goTo }) {
   // Delete habit
   const handleDeleteOne = () => {
     const updated = [...habits];
-    updated[habitToDeleteIndex] = null; 
+    updated[habitToDeleteIndex] = null;
     setHabits(updated);
 
     // reset states
     setHabitToDeleteIndex(null);
     setShowDeletePopup(false);
     setDeleteMode(false);
-};
-
+  };
 
   return (
     <div className="dashboard-container">
@@ -74,7 +73,10 @@ export default function Dashboard({ goTo }) {
           <h1 className="app-title">Pot Your Progress</h1>
         </div>
         <div className="nav-right">
-          <button className="icon-button" onClick={() => setShowReminderPopup(true)}>
+          <button
+            className="icon-button"
+            onClick={() => setShowReminderPopup(true)}
+          >
             <img src="/notif.png" alt="reminder" className="nav-icon" />
           </button>
 
@@ -102,16 +104,21 @@ export default function Dashboard({ goTo }) {
                   return;
                 } else {
                   setEditingHabitIndex(i); // open edit popup
-              }
+                }
               }}
               disabled={!h}
             >
-            <div className="habit-card-wrapper">
-              <img src="/Pot.png" alt="pot" className="pot-img" />
-              {h && <img src="/AlivePlant.png" alt="plant" className="plant-img" />}
-              {h && <p className="habit-title">{h.name}</p>}
-            </div>
-
+              <div className="habit-card-wrapper">
+                <img src="/Pot.png" alt="pot" className="pot-img" />
+                {h && (
+                  <img
+                    src="/AlivePlant.png"
+                    alt="plant"
+                    className="plant-img"
+                  />
+                )}
+                {h && <p className="habit-title">{h.name}</p>}
+              </div>
             </button>
           ))}
         </div>
@@ -120,20 +127,20 @@ export default function Dashboard({ goTo }) {
           <div className="sidebar-card">
             <button
               className={`icon-button ${deleteMode ? "delete-active" : ""}`}
-              onClick={() => setDeleteMode(!deleteMode)}
+              onClick={() => setDeleteMode((prev) => !prev)}
             >
               <img src="/Shovel.png" alt="shovel" className="sidebar-icon" />
             </button>
-              
+
             {showDeletePopup && (
-                <DeleteHabitPopup
-                  onClose={() => {
-                    setShowDeletePopup(false);
-                    setHabitToDeleteIndex(null);
-                    setDeleteMode(false);
-                  }}
-                  onDelete={handleDeleteOne}
-                />
+              <DeleteHabitPopup
+                onClose={() => {
+                  setShowDeletePopup(false);
+                  setHabitToDeleteIndex(null);
+                  setDeleteMode(false);
+                }}
+                onDelete={handleDeleteOne}
+              />
             )}
 
             <button
@@ -175,15 +182,16 @@ export default function Dashboard({ goTo }) {
         />
       )}
 
-{showReminderPopup && (
-  <ReminderPopup
-    habits={habits.filter((h) => h !== null)} 
-    onClose={() => setShowReminderPopup(false)}
-    onAddReminder={(habit) => console.log("Add reminder for:", habit)}
-    onDeleteReminder={(habit) => console.log("Delete reminder for:", habit)}
-  />
-)}
-
+      {showReminderPopup && (
+        <ReminderPopup
+          habits={habits.filter((h) => h !== null)}
+          onClose={() => setShowReminderPopup(false)}
+          onAddReminder={(habit) => console.log("Add reminder for:", habit)}
+          onDeleteReminder={(habit) =>
+            console.log("Delete reminder for:", habit)
+          }
+        />
+      )}
     </div>
   );
 }

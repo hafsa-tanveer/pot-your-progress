@@ -10,7 +10,7 @@ export default function LogIn({ goTo }) {
   const handleLogin = async (e) => {
     e.preventDefault(); // prevent form reload
     try {
-      const response = await API.post("/login", { email, password });
+      const response = await API.post("/auth/login", { email, password });
       console.log("Login success:", response.data);
       alert("Logged in!");
       goTo("dashboard"); // navigate after successful login

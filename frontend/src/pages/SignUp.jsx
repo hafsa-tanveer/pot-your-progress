@@ -18,7 +18,11 @@ export default function SignUp({ goTo }) {
     }
 
     try {
-      const response = await API.post("/signup", { name, email, password });
+      const response = await API.post("/auth/signup", {
+        name,
+        email,
+        password,
+      });
       alert("Signup successful!");
       goTo("login");
     } catch (error) {
