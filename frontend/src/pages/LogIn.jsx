@@ -1,19 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../CSS/LogIn.css";
 import API from "../api";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-export default function LogIn({ goTo }) {
+export default function LogIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  // If user navigates back to login, clear session to prevent forward navigation into dashboard
+  useEffect(() => {
+    const logoutOnLoad = async () => {
+      try {
+        await API.post("/auth/logout");
+      } catch (err) {
+        // ignore logout errors
+      }
+      localStorage.removeItem("user");
+    };
+    logoutOnLoad();
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault(); // prevent form reload
     try {
       const response = await API.post("/auth/login", { email, password });
-      console.log("Login success:", response.data);
-      alert("Logged in!");
-      goTo("dashboard"); // navigate after successful login
+      // persist minimal user info for UI/route guards
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      navigate("/dashboard"); // navigate after successful login
     } catch (error) {
       if (!error.response) {
         alert("Cannot reach backend. Make sure the server is running!");
@@ -47,9 +61,9 @@ export default function LogIn({ goTo }) {
 
           <Link to="/resetpassword">Forgot Password?</Link>
 
-          <Link to="/dashboard" className="signin-btn">
+          <button type="submit" className="signin-btn">
             Log In
-          </Link>
+          </button>
         </form>
       </div>
     </div>

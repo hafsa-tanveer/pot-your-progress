@@ -10,7 +10,9 @@ export default function ReminderPopup({
   const validHabits = habits.filter((h) => h !== null);
 
   const [selectedHabit, setSelectedHabit] = useState(
-    validHabits.length > 0 ? validHabits[0].name : ""
+    validHabits.length > 0
+      ? validHabits[0].habit_name || validHabits[0].name
+      : ""
   );
 
   const handleAdd = () => {
@@ -42,16 +44,20 @@ export default function ReminderPopup({
               onChange={(e) => setSelectedHabit(e.target.value)}
               style={{ marginBottom: "15px" }}
             >
-              {validHabits.map((h, i) => (
-                <option key={i} value={h.name}>
-                  {h.name}
-                </option>
-              ))}
+              {validHabits.map((h, i) => {
+                const displayName = h.habit_name || h.name;
+                return (
+                  <option key={i} value={displayName}>
+                    {displayName}
+                  </option>
+                );
+              })}
             </select>
 
             {/* ACTION BUTTONS */}
             <div style={{ display: "flex", justifyContent: "center" }}>
-              <button className="add-habit-button"
+              <button
+                className="add-habit-button"
                 onClick={handleAdd}
                 style={{
                   marginRight: "10px",
@@ -60,9 +66,7 @@ export default function ReminderPopup({
                 Add Reminder
               </button>
 
-              <button className="cancel-button"
-                onClick={handleDelete}
-              >
+              <button className="cancel-button" onClick={handleDelete}>
                 Delete Reminder
               </button>
             </div>

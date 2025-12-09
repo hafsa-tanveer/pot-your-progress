@@ -1,10 +1,10 @@
 /* Entire screen */
 .dashboard-container {
-  width: 100vw; 
-  min-height: 100vh; 
+  width: 100vw;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #AAC4B4;
+  background: #aac4b4;
   font-family: "Pixelify Sans", sans-serif;
   box-sizing: border-box;
 }
@@ -18,11 +18,12 @@
   justify-content: space-between;
   align-items: center;
   padding: 0 20px;
-  color: #F7F3ED;
+  color: #f7f3ed;
   box-sizing: border-box;
 }
 
-.nav-left, .nav-right {
+.nav-left,
+.nav-right {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -31,7 +32,7 @@
 .profile-circle {
   width: 50px;
   height: 50px;
-  background: #F7F3ED;
+  background: #f7f3ed;
   border-radius: 50%;
 }
 
@@ -67,7 +68,7 @@
 }
 
 .notif-logout-button {
-    width: 10px;
+  width: 10px;
 }
 
 /* MAIN CONTENT */
@@ -98,7 +99,7 @@
 }
 
 .habit-card {
-  background: #F7F3ED;
+  background: #f7f3ed;
   border-radius: 10px;
   height: 130px;
   width: 130px;
@@ -138,15 +139,35 @@
   position: absolute;
   bottom: -25px; /* just below pot */
   font-size: 14px;
-  color: #422B23;
+  color: #422b23;
   text-align: center;
   width: 100%;
   z-index: 3;
 }
 
+.droplet-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.droplet-img {
+  width: 28px;
+  height: auto;
+  pointer-events: none;
+}
+
 /* SIDEBAR */
 .sidebar {
-  width: 100px; 
+  width: 100px;
   height: 100px;
   display: flex;
   padding-top: 100px;
@@ -154,7 +175,7 @@
 }
 
 .sidebar-card {
-  background: #F7F3ED;
+  background: #f7f3ed;
   width: 140px;
   min-height: 260px;
   border-radius: 15px; /* remove oval shape */
@@ -166,7 +187,6 @@
   box-sizing: border-box;
 }
 
-
 .sidebar-icon {
   width: 50px;
   height: 50px;
@@ -177,7 +197,7 @@
   margin-top: 10px;
   width: 80px;
   height: auto;
-  background: transparent ;
+  background: transparent;
   border-radius: 0;
 }
 

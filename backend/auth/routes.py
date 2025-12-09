@@ -54,10 +54,10 @@ def signup():
 @auth_bp.post("/login")
 def login():
     data = request.json
-    email = data.get("email") 
+    identifier = data.get("email")  # accept email or username in same field
     password = data.get("password")
 
-    if not email or not password:
+    if not identifier or not password:
         return jsonify({"message": "Missing credentials"}), 400
 
     supabase = get_supabase_client()
@@ -65,14 +65,21 @@ def login():
         return jsonify({"message": "Database connection failed"}), 500
 
     try:
-        # 1. Fetch User by Email
-        response = supabase.table('users').select('user_id, full_name, email, password_hash').eq('email', email).execute()
+        # 1. Fetch User by Email OR Username (full_name)
+        or_filter = f"email.eq.{identifier},full_name.eq.{identifier}"
+        response = (
+            supabase.table('users')
+            .select('user_id, full_name, email, password_hash')
+            .or_(or_filter)
+            .execute()
+        )
         
         if response.data and len(response.data) > 0:
             user_data = response.data[0]
             user_id = user_data['user_id']
             db_name = user_data['full_name']
-            db_hash = user_data['password_hash']  # This is the bcrypt hash
+            db_email = user_data['email']
+            db_hash = user_data['password_hash']  # bcrypt hash
 
             # 2. Verify Password
             if bcrypt.checkpw(password.encode('utf-8'), db_hash.encode('utf-8')):
@@ -84,7 +91,7 @@ def login():
                 return jsonify({
                     "message": "Login successful",
                     "token": f"mock-jwt-token-{user_id}", 
-                    "user": {"id": user_id, "name": db_name, "email": email}
+                    "user": {"id": user_id, "name": db_name, "email": db_email}
                 }), 200
             else:
                 return jsonify({"message": "Invalid credentials"}), 401

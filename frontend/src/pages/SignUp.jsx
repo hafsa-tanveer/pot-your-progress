@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import "../CSS/SignUp.css";
 import API from "../api";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-export default function SignUp({ goTo }) {
+export default function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault(); // prevent form reload
@@ -18,13 +19,13 @@ export default function SignUp({ goTo }) {
     }
 
     try {
-      const response = await API.post("/auth/signup", {
+      await API.post("/auth/signup", {
         name,
         email,
         password,
       });
       alert("Signup successful!");
-      goTo("login");
+      navigate("/login");
     } catch (error) {
       if (!error.response) {
         // Network / backend not reachable
@@ -73,10 +74,14 @@ export default function SignUp({ goTo }) {
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
 
-          <Link to="/dashboard" className="signup-btn">
+          <button type="submit" className="signup-btn">
             Sign Up
-          </Link>
+          </button>
         </form>
+
+        <div style={{ marginTop: "10px" }}>
+          <Link to="/login">Already have an account? Log In</Link>
+        </div>
       </div>
     </div>
   );

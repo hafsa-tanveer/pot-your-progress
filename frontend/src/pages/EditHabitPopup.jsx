@@ -8,14 +8,14 @@ export default function EditHabitPopup({ habit, onClose, onEditHabit }) {
   // Pre-fill the inputs when popup opens
   useEffect(() => {
     if (habit) {
-      setHabitName(habit.name);
-      setFrequency(habit.frequency);
+      setHabitName(habit.habit_name || habit.name || "");
+      setFrequency(habit.frequency || "daily");
     }
   }, [habit]);
 
   const handleEdit = () => {
     if (!habitName.trim()) return;
-    onEditHabit({ ...habit, name: habitName, frequency });
+    onEditHabit({ ...habit, habit_name: habitName, frequency });
     onClose();
   };
 
@@ -31,28 +31,36 @@ export default function EditHabitPopup({ habit, onClose, onEditHabit }) {
           onChange={(e) => setHabitName(e.target.value)}
         />
         <div style={{ margin: "10px 0" }}>
-          <button className="daily-button"
+          <button
+            className="daily-button"
             style={{
               backgroundColor: frequency === "daily" ? "#294936" : "#F7F3ED",
               marginRight: "10px",
-              color: frequency === "daily" ? "#F7F3ED" : "#294936"
+              color: frequency === "daily" ? "#F7F3ED" : "#294936",
             }}
             onClick={() => setFrequency("daily")}
           >
             Daily
           </button>
-          <button className="daily-button"
+          <button
+            className="daily-button"
             style={{
               backgroundColor: frequency === "weekly" ? "#294936" : "#F7F3ED",
-              color: frequency === "weekly" ? "#F7F3ED" : "#294936"
+              color: frequency === "weekly" ? "#F7F3ED" : "#294936",
             }}
             onClick={() => setFrequency("weekly")}
           >
             Weekly
           </button>
         </div>
-        <button className='add-habit-button' onClick={handleEdit}>Save Changes</button>
-        <button className='add-habit-button' onClick={onClose} style={{ marginLeft: "10px" }}>
+        <button className="add-habit-button" onClick={handleEdit}>
+          Save Changes
+        </button>
+        <button
+          className="add-habit-button"
+          onClick={onClose}
+          style={{ marginLeft: "10px" }}
+        >
           Cancel
         </button>
       </div>

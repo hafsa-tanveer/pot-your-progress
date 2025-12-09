@@ -172,7 +172,7 @@ def get_habits():
 # --------------------------------------------------------
 #                 CREATE HABIT
 # --------------------------------------------------------
-@habits_bp.post("/")
+@habits_bp.post("")
 def create_habit():
     """Create a new habit"""
     user_id = session.get('user_id')
@@ -195,7 +195,8 @@ def create_habit():
             'user_id': user_id,
             'habit_name': habit_name,
             'frequency': frequency,
-            'plant_state': 'flourishing'
+            'plant_state': 'flourishing',
+            'last_watered': None
         }).execute()
         return jsonify({"message": "Habit created successfully", "habit": response.data[0] if response.data else None}), 201
     except Exception as e:
@@ -274,6 +275,13 @@ def track_completion(habit_id):
         
         updated_habit = update_response.data[0]
         was_revived = current_state == 'wilting'
+
+        if frequency == 'daily':
+            updated_habit['is_completed_today'] = True
+            updated_habit['is_completed_this_week'] = False
+        else:
+            updated_habit['is_completed_today'] = False
+            updated_habit['is_completed_this_week'] = True
         
         return jsonify({
             "message": "Habit completed successfully",

@@ -14,7 +14,12 @@ app.secret_key = "super_secret_key_for_session"
 
 # 2. SETUP CORS
 # supports_credentials=True is required for session cookies to work
-CORS(app, supports_credentials=True)
+# Restrict to Vite dev origins to avoid redirects-on-preflight issues
+CORS(
+    app,
+    supports_credentials=True,
+    origins=["http://localhost:5173", "http://localhost:5174"],
+)
 
 # 3. REGISTER ROUTES
 app.register_blueprint(auth_bp, url_prefix="/auth")
