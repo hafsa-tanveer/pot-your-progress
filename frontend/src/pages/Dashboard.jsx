@@ -5,6 +5,7 @@ import EditHabitPopup from "./EditHabitPopup";
 import DeleteHabitPopup from "./DeleteHabitPopup";
 import LogoutPopup from "./LogoutPopup";
 import ReminderPopup from "./ReminderPopup";
+import ReminderNotificationPopup from "./ReminderNotificationPopup";
 import { useNavigate } from "react-router-dom";
 import API from "../api";
 
@@ -21,6 +22,9 @@ export default function Dashboard() {
   // store reminders by habit index
   const [reminders, setReminders] = useState({});
   const [user, setUser] = useState(null);
+  const [pendingReminders, setPendingReminders] = useState([]);
+  const [currentReminderIndex, setCurrentReminderIndex] = useState(0);
+  const [showReminderNotification, setShowReminderNotification] = useState(false);
 
   const navigate = useNavigate();
 
@@ -68,6 +72,41 @@ export default function Dashboard() {
     };
     fetchHabits();
   }, [navigate]);
+  
+  // Separate effect for polling reminders
+  useEffect(() => {
+    // Poll for reminders every 30 seconds
+    const reminderInterval = setInterval(async () => {
+      try {
+        const res = await API.get("/habits/reminders");
+        if (res.data.reminders && res.data.reminders.length > 0) {
+          setPendingReminders(res.data.reminders);
+          setCurrentReminderIndex(0);
+          setShowReminderNotification(true);
+        }
+      } catch (err) {
+        // Silently fail - reminders are optional
+        console.log("Could not fetch reminders:", err);
+      }
+    }, 30000); // Check every 30 seconds
+    
+    // Also check immediately
+    const checkReminders = async () => {
+      try {
+        const res = await API.get("/habits/reminders");
+        if (res.data.reminders && res.data.reminders.length > 0) {
+          setPendingReminders(res.data.reminders);
+          setCurrentReminderIndex(0);
+          setShowReminderNotification(true);
+        }
+      } catch (err) {
+        console.log("Could not fetch reminders:", err);
+      }
+    };
+    checkReminders();
+    
+    return () => clearInterval(reminderInterval);
+  }, []);
 
   useEffect(() => {
     document.body.style.cursor = deleteMode
@@ -305,12 +344,48 @@ export default function Dashboard() {
         <ReminderPopup
           habits={habits.filter((h) => h !== null)}
           onClose={() => setShowReminderPopup(false)}
-          onAddReminder={(habit) => console.log("Add reminder for:", habit)}
+          onAddReminder={async (habit) => {
+            try {
+              const response = await API.post("/habits/send-test-reminder");
+              alert(response.data.message || "Test reminder email sent! Please check your inbox.");
+            } catch (error) {
+              console.error("Failed to send test reminder", error);
+              if (!error.response) {
+                alert("Cannot reach backend. Make sure the server is running!");
+              } else {
+                alert(error.response.data?.message || "Failed to send test reminder email");
+              }
+            }
+          }}
           onDeleteReminder={(habit) =>
             console.log("Delete reminder for:", habit)
           }
         />
       )}
+
+      {showReminderNotification && pendingReminders.length > 0 && currentReminderIndex < pendingReminders.length && (
+        <ReminderNotificationPopup
+          reminder={pendingReminders[currentReminderIndex]}
+          onClose={() => {
+            setShowReminderNotification(false);
+            // Clear all reminders after showing them
+            API.post("/habits/reminders/clear").catch(console.error);
+            setPendingReminders([]);
+          }}
+          onDismiss={() => {
+            // Move to next reminder or close if last one
+            if (currentReminderIndex < pendingReminders.length - 1) {
+              setCurrentReminderIndex(currentReminderIndex + 1);
+            } else {
+              setShowReminderNotification(false);
+              // Clear all reminders after showing them
+              API.post("/habits/reminders/clear").catch(console.error);
+              setPendingReminders([]);
+            }
+          }}
+        />
+      )}
+
     </div>
   );
 }

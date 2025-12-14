@@ -455,3 +455,122 @@ def delete_habit(habit_id):
     except Exception as e:
         return jsonify({"message": str(e)}), 500
 
+# --------------------------------------------------------
+#                 SEND TEST REMINDER EMAIL
+# --------------------------------------------------------
+@habits_bp.post("/send-test-reminder")
+def send_test_reminder():
+    """
+    Sends a test reminder email to the logged-in user.
+    This is triggered when the user clicks "Add Reminder" in the UI.
+    """
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"message": "Unauthorized"}), 401
+    
+    supabase = get_supabase_client()
+    if not supabase:
+        return jsonify({"message": "Database connection failed"}), 500
+    
+    try:
+        # Get user's email and name
+        user_response = supabase.table('users').select('email, full_name').eq('user_id', user_id).execute()
+        
+        if not user_response.data or len(user_response.data) == 0:
+            return jsonify({"message": "User not found"}), 404
+        
+        user_data = user_response.data[0]
+        user_email = user_data['email']
+        user_name = user_data['full_name']
+        
+        # ====================================================================
+        # RESEND EMAIL API CALL - COMMENTED OUT (Visible for review)
+        # ====================================================================
+        # Free tier email services don't allow sending without domain purchase
+        # This code is kept for reference and can be uncommented once a domain is purchased
+        # 
+        # from email_service import send_daily_reminder_email
+        # import logging
+        # 
+        # logger = logging.getLogger(__name__)
+        # 
+        # # Send a test email with a generic message
+        # logger.info(f"Attempting to send test reminder email to {user_email}")
+        # result = send_daily_reminder_email(
+        #     user_email=user_email,
+        #     user_name=user_name,
+        #     habit_names=["Test Reminder"]
+        # )
+        # 
+        # if result:
+        #     logger.info(f"Test reminder email sent successfully to {user_email}")
+        #     return jsonify({
+        #         "message": "Test reminder email sent successfully! Please check your inbox.",
+        #         "email": user_email
+        #     }), 200
+        # else:
+        #     logger.error(f"Failed to send test reminder email to {user_email} - send_daily_reminder_email returned None")
+        #     # Provide helpful error message about Resend restrictions
+        #     return jsonify({
+        #         "message": f"Failed to send test email to {user_email}. During Resend testing, you can only send emails to the address you used to sign up for Resend. Please verify your email in Resend dashboard or use your Resend signup email for testing."
+        #     }), 500
+        # ====================================================================
+        
+        # Store test reminder for popup display instead
+        from reminder_storage import add_reminder
+        add_reminder(user_id, ["Test Reminder"])
+        
+        return jsonify({
+            "message": "Test reminder created! You will see it as a popup notification on the dashboard.",
+            "email": user_email
+        }), 200
+            
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Exception while sending test email: {str(e)}", exc_info=True)
+        return jsonify({"message": f"Error sending test email: {str(e)}"}), 500
+
+# --------------------------------------------------------
+#                 GET PENDING REMINDERS
+# --------------------------------------------------------
+@habits_bp.get("/reminders")
+def get_reminders():
+    """
+    Get all pending reminders for the logged-in user.
+    These reminders are created by the scheduler when plants are wilting.
+    """
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"message": "Unauthorized"}), 401
+    
+    try:
+        from reminder_storage import get_reminders
+        reminders = get_reminders(user_id)
+        return jsonify({
+            "reminders": reminders,
+            "count": len(reminders)
+        }), 200
+    except Exception as e:
+        return jsonify({"message": f"Error getting reminders: {str(e)}"}), 500
+
+# --------------------------------------------------------
+#                 CLEAR REMINDERS
+# --------------------------------------------------------
+@habits_bp.post("/reminders/clear")
+def clear_reminders():
+    """
+    Clear all pending reminders for the logged-in user.
+    Called after reminders have been displayed to the user.
+    """
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"message": "Unauthorized"}), 401
+    
+    try:
+        from reminder_storage import clear_reminders
+        clear_reminders(user_id)
+        return jsonify({"message": "Reminders cleared successfully"}), 200
+    except Exception as e:
+        return jsonify({"message": f"Error clearing reminders: {str(e)}"}), 500
+

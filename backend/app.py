@@ -5,6 +5,7 @@ import logging
 # Import Blueprints
 from auth.routes import auth_bp
 from habits.routes import habits_bp
+from scheduler import start_scheduler
 
 # 1. SETUP LOGGING (Info level shows all requests)
 logging.basicConfig(level=logging.INFO)
@@ -24,6 +25,9 @@ CORS(
 # 3. REGISTER ROUTES
 app.register_blueprint(auth_bp, url_prefix="/auth")
 app.register_blueprint(habits_bp, url_prefix="/habits")
+
+# 4. START SCHEDULER (for plant state updates and email reminders)
+start_scheduler()
 
 @app.route("/")
 def home():
